@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
-
 import random
 import asyncio
+from functools import wraps
 
 class MetaWeird(type):
     def __new__(cls, name, bases, dct):
@@ -20,8 +19,12 @@ class Exotic(BaseA, BaseB, metaclass=MetaWeird):
     def __init__(self, value):
         self.value = value
     
-    def __call__(self, x):
-        return self.value * x
+    def __call__(self, func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            print(f"Exotic decoration with {self.value}!")
+            return func(*args, **kwargs)
+        return wrapper
     
     def __getitem__(self, index):
         return f"Item {index}: {self.value}"
@@ -49,7 +52,7 @@ class Exotic(BaseA, BaseB, metaclass=MetaWeird):
             await asyncio.sleep(0.5)
             print(f"Async count {i+1} for {self.value}")
 
-@Exotic
+@Exotic(42)
 def magic_function():
     return "This function is now exotic!"
 
@@ -58,7 +61,6 @@ if __name__ == "__main__":
     print(e.feature_a())
     print(e.feature_b())
     print(e.meta_magic())
-    print(e(3))  # Вызов экземпляра как функции
     print(e[5])  # Доступ по индексу
     e[5] = "Mystery"
     print(e)
