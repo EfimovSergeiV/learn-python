@@ -1,27 +1,37 @@
 #!/usr/bin/env python3
 
 import random
+from functools import wraps
+
+
 
 class MetaWeird(type):
     def __new__(cls, name, bases, dct):
         dct["meta_magic"] = lambda self: f"Meta-magic of {self.__class__.__name__}!"
         return super().__new__(cls, name, bases, dct)
 
+
 class BaseA:
     def feature_a(self):
         return "Feature A activated!"
+
 
 class BaseB:
     def feature_b(self):
         return "Feature B engaged!"
 
+
 class Exotic(BaseA, BaseB, metaclass=MetaWeird):
     def __init__(self, value):
         self.value = value
     
-    def __call__(self, x):
-        return self.value * x
-    
+    def __call__(self, func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            print(f"Exotic decoration with {self.value}!")
+            return func(*args, **kwargs)
+        return wrapper
+
     def __getitem__(self, index):
         return f"Item {index}: {self.value}"
     
@@ -39,9 +49,12 @@ class Exotic(BaseA, BaseB, metaclass=MetaWeird):
     def from_double(cls, number):
         return cls(number / 2)
 
-@Exotic
+
+@Exotic(42)
 def magic_function():
     return "This function is now exotic!"
+
+
 
 if __name__ == "__main__":
     e = Exotic(42)

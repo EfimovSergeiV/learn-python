@@ -2,6 +2,7 @@ import random
 import asyncio
 from functools import wraps
 
+
 class MetaWeird(type):
     def __new__(cls, name, bases, dct):
         dct["meta_magic"] = lambda self: f"Meta-magic of {self.__class__.__name__}!"
